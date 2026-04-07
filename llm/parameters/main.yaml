@@ -1,0 +1,42 @@
+model_name: "qwen"
+use_cluster: False
+
+dataset_base_path: "/data/datasets"
+
+# Dataset configuration
+dataset:
+  path: "${dataset_base_path}/swarm/train.json"
+  path_eval: "${dataset_base_path}/swarm/eval.json"
+
+# LoRA configuration
+lora:
+  r: 8
+  lora_alpha: 16
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj"]
+
+# Training configuration
+training:
+  learning_rate: 3e-4
+  per_device_train_batch_size: 8
+  per_device_eval_batch_size: 32
+  gradient_accumulation_steps: 16
+  num_train_epochs: 3
+  report_to: "wandb"
+  push_to_hub: True
+  max_length: 4096
+
+experiment_name_wandb: "finetuning"
+
+wandb_project: "llm_finetuning2"
+wandb_entity: "distributed_transformer"
+
+root_dir: "/data/llm"
+
+hydra:
+  job:
+    chdir: True
+  run:
+    # dir: ${root_dir}/${experiment}/${neural_network.type}/${now:%Y%m%d}/${now:%H%M%S}
+    dir: ${root_dir}/${wandb_project}/${now:%Y%m%d}/${now:%H%M%S}
+  sweep:
+    dir: ${root_dir}/${wandb_project}/${now:%Y%m%d}/${now:%H%M%S}
