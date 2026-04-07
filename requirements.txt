@@ -1,4 +1,0 @@
-cflib2 @ git+https://github.com/bitcraze/crazyflie-lib-python-v2.git@329bd2cb6b21ccecce0396926887743c148a6bd6
-PyQt6
-qasync
-matplotlib

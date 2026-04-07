@@ -1,0 +1,23 @@
+[project]
+name = "crazyllm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "accelerate>=1.13.0",
+    "bitsandbytes>=0.49.2",
+    "cflib2",
+    "datasets>=4.8.4",
+    "huggingface-hub>=1.9.0",
+    "matplotlib>=3.10.8",
+    "peft>=0.18.1",
+    "pyqt6>=6.11.0",
+    "qasync>=0.28.0",
+    "torch>=2.11.0",
+    "torchvision>=0.26.0",
+    "transformers>=5.5.0",
+]
+
+[tool.uv.sources]
+cflib2 = { git = "https://github.com/bitcraze/crazyflie-lib-python-v2.git", rev = "329bd2cb6b21ccecce0396926887743c148a6bd6" }
