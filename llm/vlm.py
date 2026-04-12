@@ -92,7 +92,7 @@ class VLM:
         torch.set_float32_matmul_precision('high')
         print(f"{full_model_name} VLM loaded successfully!")
 
-    def predict(self, prompt: str, image, max_new_tokens: int = 500) -> str:
+    def predict(self, prompt: str, image, system_prompt: str, max_new_tokens: int = 500) -> str:
         """
         Generate a response for a single text prompt and image.
 
@@ -104,15 +104,15 @@ class VLM:
         Returns:
             Generated text response
         """
-        content = [ {"type": "image", "image": image}, {"type": "text", "text": prompt}] if image else [{"type": "text", "text": prompt}]
-        messages = [
+        content = [{"type": "image", "image": image}, {"type": "text", "text": prompt}] if image else [{"type": "text", "text": prompt}]
+        messages = [{"role": "system", "content": [{"type": "text", "text": system_prompt}]}] if system_prompt else []
+        messages += [
             {
                 "role": "user",
-                "content": [
-                    content
-                ],
+                "content": content,
             }
         ]
+        print(messages)
         return self.chat(messages, max_new_tokens)
 
     def chat(self, messages: list, max_new_tokens: int = 500) -> str:
@@ -135,6 +135,7 @@ class VLM:
             add_generation_prompt=True,
             tokenize=True,
             return_dict=True,
+            enable_thinking=True,
             return_tensors="pt",
         ).to(self.model.device)
 
