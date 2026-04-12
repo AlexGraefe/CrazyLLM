@@ -14,6 +14,9 @@ from transformers import AutoProcessor, AutoModelForImageTextToText, BitsAndByte
 from peft import PeftModel
 import logging
 
+import requests
+from PIL import Image
+
 
 def load_model(model_name: str, use_cluster: bool = False, bits_and_bytes_config=None):
 
@@ -101,12 +104,12 @@ class VLM:
         Returns:
             Generated text response
         """
+        content = [ {"type": "image", "image": image}, {"type": "text", "text": prompt}] if image else [{"type": "text", "text": prompt}]
         messages = [
             {
                 "role": "user",
                 "content": [
-                    {"type": "image", "image": image},
-                    {"type": "text", "text": prompt},
+                    content
                 ],
             }
         ]
@@ -158,8 +161,10 @@ class VLM:
 if __name__ == "__main__":
     vlm = VLM(model_name="qwen-vl", use_cluster=False)
 
+    image = Image.open(requests.get("https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/cats.png", stream=True).raw)
+
     response = vlm.predict(
         prompt="What do we see in this image?",
-        image="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/cats.png",
+        image=image,
     )
     print(response)
