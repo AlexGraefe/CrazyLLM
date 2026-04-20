@@ -135,7 +135,7 @@ class VLM:
             add_generation_prompt=True,
             tokenize=True,
             return_dict=True,
-            enable_thinking=True,
+            enable_thinking=False,
             return_tensors="pt",
         ).to(self.model.device)
 
