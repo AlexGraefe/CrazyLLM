@@ -19,7 +19,14 @@ def generate_directions(current_position: dict) -> list:
     distance = round(distance, 1)
     num_drones = random.randint(1, 3)
     direction = random.sample(["up", "down", "forward", "backward", "left", "right"], num_drones)
-    drones = random.sample(["red", "green", "blue"], num_drones)
+    drones = random.sample(["red", "green", "blue", "all", ""], num_drones)
+
+    all_in_drones = False
+    c = None
+    if "all" in drones or "" in drones:
+        all_in_drones = True
+        c = "all" if "all" in drones else ""
+        drones = ["red", "green", "blue"]
 
     new_position = current_position.copy()
     for drone in drones:
@@ -39,6 +46,8 @@ def generate_directions(current_position: dict) -> list:
     command = ""
     for drone, dir in zip(drones, direction):
         command += f"{drone} {dir}, "
+    if all_in_drones:
+        command = f"{c} {direction[0]}, "
     command = command[:-2]  # remove last comma and space
     for k in new_position.keys():
         new_position[k] = [round(x, 1) for x in new_position[k]]
@@ -163,7 +172,7 @@ def generate_dataset(name, num_samples=1000):
     for _ in tqdm(range(num_samples)):
         messages = {"messages": [{"role": "system", "content": SYSTEM_PROMPT}]}
         current_position = {'red': [1.0, 1.0, 1.0], 'green': [1.0, 0.0, 1.0], 'blue': [1.0, -1.0, 1.0]}
-        for _ in range(5):
+        for _ in range(7):
             generator = random.choice(GENERATORS)
             command, new_position = generator(current_position)
             messages["messages"].append({"role": "user", "content": command})
@@ -180,7 +189,7 @@ def generate_dataset(name, num_samples=1000):
 
 
 if __name__ == "__main__":
-    generate_dataset("train", num_samples=1500)
+    generate_dataset("train", num_samples=1000)
     generate_dataset("eval", num_samples=200)
     dataset = load_dataset("json", data_files="/data/datasets/swarm/train.json", field="data") 
     print(dataset["train"][0])

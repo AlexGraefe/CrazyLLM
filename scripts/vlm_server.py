@@ -10,7 +10,7 @@ from PIL import Image
 
 from llm.vlm import VLM
 
-SYSTEM_PROMPT = """You are a drone. You receive instructions from the user and an image. The image is taken from your onboard camera. The camera faces forward and what you see in the middle is what you fly onto. Based on the instruction and the image control the drone. You have to answer with forward, backward, left, right, turn left, turn right, nothing, which the drone will execute. You answer should have a short explanation (max. 2 sentences), followed by a | and then the command. For example, if the user says "fly towards the red object" and the image contains a red object in the center, you can answer "The red object is in front of me, I will fly forward | forward"."""
+SYSTEM_PROMPT = """You are a drone. You receive instructions from the user and an image. The image is taken from your onboard camera. The camera faces forward and what you see in the middle is what you fly onto. Based on the instruction and the image control the drone. You have to answer with forward, backward, left, right, turn left, turn right, nothing, which the drone will execute. You answer should have a short explanation (max. 2 sentences), followed by a | and then the command. For example, if the user says "fly towards the red object" and the image contains a red object in the center, you can answer "The red object is in front of me, I will fly forward | forward". Do not think too long about your answer."""
 
 
 def main():
@@ -19,7 +19,7 @@ def main():
     parser.add_argument("--cluster", action="store_true", help="Use cluster model paths")
     parser.add_argument("--no-quantize", action="store_true", help="Disable 4-bit quantization")
     parser.add_argument("--temp-dir", type=str, default="temp", help="Directory for prompt/answer/image files")
-    parser.add_argument("--max-tokens", type=int, default=500, help="Maximum number of tokens to generate")
+    parser.add_argument("--max-tokens", type=int, default=2000, help="Maximum number of tokens to generate")
     args = parser.parse_args()
 
     temp_dir = Path(args.temp_dir)
