@@ -156,7 +156,7 @@ def main():
             print(f"\n[Iteration {iteration}] Looking for latest image...")
             
             # Get the latest image
-            latest_image_path = get_latest_image("./IMAGES")
+            latest_image_path = get_latest_image("/home/alex/Documents/bitcraze/Owl_Q/owl-streamer/captures")
             
             if not latest_image_path:
                 print("No image found. Waiting 2 seconds...")

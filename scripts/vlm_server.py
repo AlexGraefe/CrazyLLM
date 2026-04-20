@@ -19,7 +19,7 @@ def main():
     parser.add_argument("--cluster", action="store_true", help="Use cluster model paths")
     parser.add_argument("--no-quantize", action="store_true", help="Disable 4-bit quantization")
     parser.add_argument("--temp-dir", type=str, default="temp", help="Directory for prompt/answer/image files")
-    parser.add_argument("--max-tokens", type=int, default=500, help="Maximum number of tokens to generate")
+    parser.add_argument("--max-tokens", type=int, default=1000, help="Maximum number of tokens to generate")
     args = parser.parse_args()
 
     temp_dir = Path(args.temp_dir)
