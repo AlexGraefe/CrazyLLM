@@ -7,8 +7,6 @@ This module provides a simple interface for loading and running inference with V
 
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
 import torch
 from transformers import AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig
 from peft import PeftModel
@@ -18,10 +16,13 @@ import requests
 from PIL import Image
 
 
-def load_model(model_name: str, use_cluster: bool = False, bits_and_bytes_config=None):
+def load_model(model_name: str, use_cluster: bool = False, bits_and_bytes_config=None, run_on_cpu=False):
 
     logger = logging.getLogger("execution_guard")
-    cache_dir = "/data/models" if not use_cluster else "/hpcwork/p0021919/models"
+    cache_dir = "/home/alex/data/models" if not use_cluster else "/hpcwork/p0021919/models"
+
+    num_threads = torch.get_num_threads()
+    print(f"Current number of threads: {num_threads}")
 
     if model_name == "qwen-vl":
         full_model_name = "Qwen/Qwen3.5-9B"
@@ -31,6 +32,8 @@ def load_model(model_name: str, use_cluster: bool = False, bits_and_bytes_config
     current_device = 0
     if "RANK" in os.environ:
         current_device = int(os.environ['RANK'])
+    if run_on_cpu:
+        current_device = "cpu"
 
     logger.info(f"Loading VLM {full_model_name} on device {current_device} with cache directory {cache_dir}...")
 
@@ -40,7 +43,7 @@ def load_model(model_name: str, use_cluster: bool = False, bits_and_bytes_config
         model = AutoModelForImageTextToText.from_pretrained(
             full_model_name,
             torch_dtype=torch.bfloat16,
-            device_map={'': current_device},
+            # device_map={'': current_device},
             attn_implementation="sdpa",
             cache_dir=cache_dir,
         )
@@ -58,7 +61,7 @@ def load_model(model_name: str, use_cluster: bool = False, bits_and_bytes_config
 class VLM:
     """VLM class for loading and running inference with vision-language models."""
 
-    def __init__(self, model_name: str, use_cluster: bool = False, quantize: bool = True):
+    def __init__(self, model_name: str, use_cluster: bool = False, quantize: bool = True, run_on_cpu=False):
         """
         Initialize the VLM with a specific model.
 
@@ -67,6 +70,9 @@ class VLM:
             use_cluster: Whether running on HPC cluster (affects cache directory)
             quantize: Whether to load the model in 4-bit quantization
         """
+        if not run_on_cpu:
+            os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
         self.model_name = model_name
         self.use_cluster = use_cluster
 
@@ -82,7 +88,7 @@ class VLM:
         else:
             bnb_config = None
 
-        model, processor, full_model_name = load_model(model_name, use_cluster, bits_and_bytes_config=bnb_config)
+        model, processor, full_model_name = load_model(model_name, use_cluster, bits_and_bytes_config=bnb_config, run_on_cpu=run_on_cpu)
         print(model.get_memory_footprint() / 1e6)
 
         self.full_model_name = full_model_name

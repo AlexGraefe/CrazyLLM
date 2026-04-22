@@ -33,6 +33,7 @@ def main():
         model_name=args.model,
         use_cluster=args.cluster,
         quantize=not args.no_quantize,
+        run_on_cpu=True,
     )
     print(f"Watching {temp_dir} for prompt.txt and image.jpg ... (Ctrl-C to stop)\n")
 

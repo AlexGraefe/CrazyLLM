@@ -5,6 +5,7 @@ functionality for controlling a single Crazyflie drone.
 """
 
 import asyncio
+import math
 
 from cflib2 import Crazyflie, LinkContext
 from cflib2.toc_cache import FileTocCache
@@ -53,7 +54,7 @@ class SingleDrone:
             self._link_context = None
             print("Disconnected from drone")
 
-    async def takeoff(self, height: float = 1.0, duration: float = 2.0) -> None:
+    async def takeoff(self, height: float = 1.0, duration: float = 1.0) -> None:
         """Arm and take off to the specified height.
 
         Args:
@@ -92,6 +93,22 @@ class SingleDrone:
         await self._cf.platform().send_arming_request(False)
         print("Landed")
 
+    async def _read_current_yaw(self) -> float:
+        """Read the drone's current yaw from the state estimator.
+
+        Returns:
+            Current yaw in degrees.
+        """
+        log = self._cf.log()
+        block = await log.create_block()
+        await block.add_variable("stateEstimate.yaw")
+        log_stream = await block.start(100)
+        try:
+            values = (await log_stream.next()).data
+            return float(values["stateEstimate.yaw"])
+        finally:
+            await log_stream.stop()
+
     async def goto(
         self,
         x: float,
@@ -109,10 +126,17 @@ class SingleDrone:
             z: Target z coordinate in meters
             yaw: Target yaw angle in degrees (default: 0.0)
             duration: Flight duration in seconds (default: 2.0)
-            relative: If True, coordinates are relative to current position (default: False)
+            relative: If True, coordinates are in the drone's local frame (default: False)
         """
         if self._cf is None:
             raise RuntimeError("Not connected to a drone")
+
+        if relative:
+            current_yaw_deg = await self._read_current_yaw()
+            yaw_rad = math.radians(current_yaw_deg)
+            x_global = x * math.cos(yaw_rad) - y * math.sin(yaw_rad)
+            y_global = x * math.sin(yaw_rad) + y * math.cos(yaw_rad)
+            x, y = x_global, y_global
 
         await self._cf.high_level_commander().go_to(
             x, y, z, yaw, duration, relative=relative, linear=True, group_mask=None

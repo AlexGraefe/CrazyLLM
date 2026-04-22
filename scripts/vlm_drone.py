@@ -28,7 +28,7 @@ from hardware.single_drone import SingleDrone
 DRONE_URI = "radio://0/84/2M/D91F700101"
 
 TAKEOFF_HEIGHT = 0.5        # meters
-TAKEOFF_DURATION = 3.0      # seconds
+TAKEOFF_DURATION = 1.0      # seconds
 
 STEP_SIZE = 0.3             # meters per forward / backward / left / right step
 YAW_STEP = 30.0             # degrees per turn-left / turn-right step
@@ -39,8 +39,15 @@ TEMP_DIR = "temp"
 VLM_TIMEOUT = 60.0          # seconds to wait for a VLM answer
 LOOP_DELAY = 3.0            # seconds between processing iterations
 
+# USER_PROMPT = """
+#     You goal is to search for a human. If you do not see a human in the image, turn left. If you see a human but it is not in the center of the image, turn towards it. If the human is in the center of the image, fly forward. Do not forget that the action you choose has to be written at the end of your answer separated by a |."""
+
+# USER_PROMPT = """
+#     You should follow human commands. You should see a human in front of you. If the human with its arm points to the right side of the image, move left. If the human with its arm points to the left side of the image, move right. If the human with its arm points towards you, fly backward. If the human does not do anything, fly forward. If you do not see a human turn left, till you see one. Do not forget that the action you choose has to be written at the end of your answer separated by a |."""
 USER_PROMPT = """
-    "You goal is to search for a human. If you do not see a human in the image, turn left. If you see a human but it is not in the center of the image, turn towards it. If the human is in the center of the image, fly forward. Do not forget that the action you choose has to be written at the end of your answer separated by a |."""
+Important: Very close means that the object fills out the entire image.
+If an object is very close, turn into the direction with more open space. If there are no objects very close or not directly in front of you, fly forward."""    
+
 # ---------------------------------------------------------------------------
 
 
