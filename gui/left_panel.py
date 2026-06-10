@@ -90,7 +90,7 @@ class LeftPanel(QFrame):
         layout.addWidget(title)
 
         self._base_address_input = QLineEdit()
-        self._base_address_input.setText("radio://0/75/2M/DB1F1010")
+        self._base_address_input.setText("radio://0/84/2M/D91F7001")
 
         connection_layout = QFormLayout()
         connection_layout.setSpacing(8)
@@ -191,6 +191,7 @@ class LeftPanel(QFrame):
             self._append_chat("LLM", answer)
             # Try to extract drone target positions from the response.
             positions = _parse_positions(answer)
+            positions = [[pos[0], pos[1], min(max(pos[2], 0.2), 1.5)] for pos in positions]
             if any(p is not None for p in positions):
                 self.goto_requested.emit(positions)
         except Exception as e:

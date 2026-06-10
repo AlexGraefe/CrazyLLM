@@ -37,9 +37,9 @@ FF_WAYPOINT_INTERVAL        = 0.1    # seconds between go_to commands
 FF_VIRTUAL_UPDATES_PER_GOTO = 10     # force-field steps per go_to command
 FF_VIRTUAL_UPDATE_INTERVAL  = FF_WAYPOINT_INTERVAL / FF_VIRTUAL_UPDATES_PER_GOTO
 FF_MAX_VELOCITY             = 0.5    # m/s cap on the virtual velocity
-FF_POSITION_TOLERANCE       = 0.05   # m – considered "reached"
+FF_POSITION_TOLERANCE       = 0.02   # m – considered "reached"
 FF_BOUNDARY_MIN             = np.array([-1.5, -1.5, 0.1])
-FF_BOUNDARY_MAX             = np.array([ 1.5,  1.5, 2.0])
+FF_BOUNDARY_MAX             = np.array([ 1.5,  1.5, 1.5])
 
 
 # ---------------------------------------------------------------------------
@@ -260,16 +260,25 @@ class Swarm:
                 above_pad = [
                     (x, y, z + 1.0) for x, y, z in self._pad_positions
                 ]
+                print("Navigating above pads before landing...")
+                print(f"Pad positions: {self._pad_positions}")
                 await self._goto_impl(above_pad)
 
             print("Landing drones...")
+            
+            for i, cf in enumerate(self._connected_cfs):
+                param = cf.param()
+                param.set("stabilizer.controller", 2)
+
+            await asyncio.sleep(1.0)
+
             await asyncio.gather(
                 *[
-                    cf.high_level_commander().land(0.0, None, 2.0, None)
+                    cf.high_level_commander().land(0.0, None, 4.0, None)
                     for cf in self._connected_cfs
                 ]
             )
-            await self._sleep_with_live_updates(2.0 + 0.5)
+            await self._sleep_with_live_updates(4.0 + 0.5)
 
             await asyncio.sleep(1.0)
             await asyncio.gather(
